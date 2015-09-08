@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+		<meta charset='utf-8' />
+		<script type="text/javascript" src="JS/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="JS/paper-full.js"></script>
+
+	</head>
+	
+	<body>
+		<!--<script type="text/javascript" src="JS/bundle.js"></script>-->
+		<p id="here"></p>
+		<canvas id="myCanvas" width="750" height="550" style="border:1px solid #000000;" resize></canvas>
+
+ 		
+ 		<script type="text/javascript">
+ 		//<script type="text/paperscript" canvas="myCanvas">  //since use this the settimeout could not work appriately
+			var canvas = document.getElementById('myCanvas');
+			// // Create an empty project and a view for the canvas:
+			paper.setup(canvas);
+			var textGroup = new paper.Group();
+			// // Create a Paper.js Path to draw a line into it:
+			var path1 = new paper.Path();
+			var path2 = new paper.Path();
+			// // Give the stroke a color
+			path1.strokeColor = 'black';
+			path2.strokeColor = 'green';
+			var left = 50;
+			var right = 700;
+			var bottom = 500;
+			var top = 50;
+			path1.add(new paper.Point(left, top));
+			path1.add(new paper.Point(left, bottom));
+			path1.add(new paper.Point(right, bottom));
+
+			//this the for the X and Y
+			var bigStep100 = new paper.Path();
+			var smallStep50 = new paper.Path();
+			bigStep100.strokeColor = 'black';
+			smallStep50.strokeColor = 'grey';
+			bigStep100.add(new paper.Point(left, bottom - 100), new paper.Point(left + 6, bottom - 100));
+			smallStep50.add(new paper.Point(left, bottom - 50), new paper.Point(left + 4, bottom - 50));
+			var bigStep200 = bigStep100.clone();
+			bigStep200.position.y -= 100;
+			var bigStep300 = bigStep100.clone();
+			bigStep300.position.y -= 200;
+			var bigStep400 = bigStep100.clone();
+			bigStep400.position.y -= 300;
+			var smallStep150 = smallStep50.clone();
+			smallStep150.position.y -= 100;
+			var smallStep250 = smallStep50.clone();
+			smallStep250.position.y -= 200;
+			var smallStep350 = smallStep50.clone();
+			smallStep350.position.y -= 300;
+
+			var text50 = new paper.PointText(new paper.Point(left-30, bottom-50+5));
+			text50.fillColor = "black";
+			text50.content = "50";
+			var text100 = new paper.PointText(new paper.Point(left-30, bottom-100+5));
+			text100.fillColor = "black";
+			text100.content = "100"; 
+			var text150 = new paper.PointText(new paper.Point(left-30, bottom-150+5));
+			text150.fillColor = "black";
+			text150.content = "150"; 
+			var text200 = new paper.PointText(new paper.Point(left-30, bottom-200+5));
+			text200.fillColor = "black";
+			text200.content = "200"; 
+			var text250 = new paper.PointText(new paper.Point(left-30, bottom-250+5));
+			text250.fillColor = "black";
+			text250.content = "250"; 
+			var text300 = new paper.PointText(new paper.Point(left-30, bottom-300+5));
+			text300.fillColor = "black";
+			text300.content = "300"; 
+			var text350 = new paper.PointText(new paper.Point(left-30, bottom-350+5));
+			text350.fillColor = "black";
+			text350.content = "350"; 
+			var text400 = new paper.PointText(new paper.Point(left-30, bottom-400+5));
+			text400.fillColor = "black";
+			text400.content = "400"; 
+
+
+			//the arrow
+			var arrow = new paper.Path();
+			arrow.add(new paper.Point(0, 8), new paper.Point(6, 0), new paper.Point(12, 8));
+			var arrowX = arrow.clone();
+			arrowX.strokeColor = 'black';
+			arrowX.position.x += (50-6);
+			arrowX.position.y += 50;
+			var arrowY = arrow.clone();
+			arrowY.strokeColor = 'black';
+			arrowY.position.x += 700-8;
+			arrowY.position.y += 500-4;
+			arrowY.rotate(90);
+
+			//title
+			var lala = 50
+			var testPoint = new paper.Point(right/2-100, lala)
+			var title = new paper.PointText(testPoint);
+			title.fillColor = "black";
+			title.fontSize = 30;
+			title.content = "Winddir Every Minute";
+
+			$(function()
+			{
+	    		var public_key = "dZ4EVmE8yGCRGx5XRX1W";
+	    		var weatherPoint; //*
+				var windirData; //*
+				var timeData;
+		    	var initialfn = function () 
+		    	{
+    		    	$.ajax
+    	    		({            
+            			url: "http://data.sparkfun.com/output/" + public_key + '.json',
+						jsonp: "callback",
+						cache: true,
+						dataType: 'jsonp',
+						async: false,			//this one is for when I 
+						data: { page:1 },
+
+	    	    	    success: function (data) 
+	    	        	{	
+	    	        		console.log(data);
+		    	        	weatherPoint = new paper.Point(0, 500-parseInt(data[0].winddir));		//*
+							windirData = parseInt(data[0].winddir);		//*
+							//timeData = data[0].measurementTime;
+							document.getElementById("here").innerHTML = windirData;  //*
+							jiji(weatherPoint, timeData, windirData);
+		        	    },
+	    	    	});
+    	    		setTimeout(initialfn, 10000);
+	    		}
+    			window.onload = initialfn;
+			});
+
+ 			function jiji(newPoint, time, data){
+ 				if(path2.segments[12]){
+ 					path2.removeSegment(0);
+	 			}
+ 				path2.add(newPoint);       //13 is the perfact for my windows
+ 				path2.fullySelected = true;
+
+ 				var text = new paper.PointText(newPoint);
+				// text.fillColor = "black";
+				text.content = data;
+				textGroup.addChild(text);
+				textGroup.fillColor = "black";
+				// var circle = new paper.Path.Circle(newPoint, 10);
+				// circle.fillColor = 'green';
+ 				
+ 				path2.position.x += 50;
+ 				textGroup.position.x += 50;
+ 				// circle.position.x += 50;
+				paper.view.draw();
+	 		}	//*
+
+		</script>
+
+	</body>
+</html>

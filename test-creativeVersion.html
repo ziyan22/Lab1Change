@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+		<meta charset='utf-8' />
+		<script type="text/javascript" src="JS/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="JS/paper-full.js"></script>
+
+	</head>
+	
+	<body>
+		<!--<script type="text/javascript" src="JS/bundle.js"></script>-->
+		<p id="here"></p>
+		<canvas id="myCanvas" width="750" height="550" style="border:1px solid #000000;" resize></canvas>
+
+ 		
+ 		<script type="text/javascript">
+ 		//<script type="text/paperscript" canvas="myCanvas">  //since use this the settimeout could not work appriately
+ 			paper.install(window);
+			var canvas = document.getElementById('myCanvas');
+			// // Create an empty project and a view for the canvas:
+			paper.setup(canvas);
+			var textGroup = new paper.Group();
+			// // Create a Paper.js Path to draw a line into it:
+			var top = 50;
+			var left = 50;
+			var right = 700;
+			var bottom = 500;
+
+			var path1 = new Path.Circle(new Point(360, 260), 150);
+			var path2 = new Path.Circle(new Point(360, 140), 30);
+			//var path2 = new paper.Path();
+			// // Give the stroke a color
+			path1.strokeColor = 'black';
+			path2.strokeColor = 'green';
+
+			
+			//path1.fullySelected = true;
+
+			//title
+			var lala = 50;
+			var testPoint = new paper.Point(right/2-100, lala);
+			var title = new paper.PointText(testPoint);
+			title.fillColor = "black";
+			title.fontSize = 30;
+			title.content = "Winddir Every Minute";
+
+
+			function jiji(winddir, windS){
+				var vector = new paper.Point(path2.position.x - path1.position.x, path2.position.y - path1.position.y);
+
+				console.log(winddir);
+				console.log(vector.angle);
+				
+				view.onFrame = function(event){
+					if(vector.angle > winddir){
+						path2.rotate(-windS/10, path1.position);
+						console.log(vector.angle + "b");
+						console.log(winddir + "s");
+					}
+					else if (vector.angle <= winddir){
+						path2.rotate(windS/10, path1.position);
+						console.log(vector.angle + "s");
+						console.log(winddir + "b");
+					}
+				}
+			}
+			
+			paper.view.draw();
+
+
+			$(function()
+			{
+	    		var public_key = "dZ4EVmE8yGCRGx5XRX1W";
+	    		var weatherPoint; //*
+				var winddirData; //*
+				var windSpeed;
+				var compareWinddir;
+		    	var initialfn = function () 
+		    	{
+    		    	$.ajax
+    	    		({            
+            			url: "http://data.sparkfun.com/output/" + public_key + '.json',
+						jsonp: "callback",
+						cache: true,
+						dataType: 'jsonp',
+						async: false,			//this one is for when I 
+						data: { page:1 },
+
+	    	    	    success: function (data) 
+	    	        	{	
+	    	        		console.log(data);
+		    	        	weatherPoint = new paper.Point(0, 500-parseInt(data[0].winddir));		//*
+							winddirData = parseInt(data[0].winddir);		//*
+							windSpeed = parseInt(data[0].windspeedmph);		//*
+							//timeData = data[0].measurementTime;
+							document.getElementById("here").innerHTML = winddirData;  //*
+							
+							if((winddirData >= 0) && (winddirData <= 90)){
+								compareWinddir = winddirData + 90;
+							}
+							else if((winddirData > 180 ) && (winddirData < 360)){
+								compareWinddir = winddirData -270;
+							}
+							jiji(compareWinddir, windSpeed);
+		        	    },
+	    	    	});
+    	    		setTimeout(initialfn, 1000);
+	    		}
+    			window.onload = initialfn;
+			});
+
+
+
+		</script>
+
+	</body>
+</html>
